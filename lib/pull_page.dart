@@ -190,7 +190,9 @@ class _VideoScreenState extends State<VideoScreen> {
           child: Stack(
             children: [
               FijkView(
-                width: size.width,height: size.height,
+                //width: size.width,height: size.height,
+                fit: FijkFit.fill,
+                fsFit: FijkFit.fill,
                 player: player,
               ),
               Align(
