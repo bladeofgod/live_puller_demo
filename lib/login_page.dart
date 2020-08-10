@@ -21,7 +21,7 @@ class LoginPageState extends State<LoginPage> {
 
   @override
   void initState() {
-    init();
+    //init();
     super.initState();
   }
   void init()async{

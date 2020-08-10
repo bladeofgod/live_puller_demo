@@ -58,22 +58,29 @@ class _VideoScreenState extends State<VideoScreen> {
   /// 滚动控制器
   ScrollController scrollController = ScrollController();
   TextEditingController textEditingController = TextEditingController();
-
+  
+  bool initSDK = false;
+  bool login = false;
+  
   @override
-  void initState() async{
-    await TencentImPlugin.init(
-        appid: "1400408794", logPrintLevel: LogPrintLevel.debug)
-    .then((value) => loginAA());
-    Map<Permission, PermissionStatus> statuses = await [
-    Permission.camera,
-        Permission.storage,
-    Permission.storage,
-    Permission.microphone,
-    ].request();
+  void initState() {
+    init();
     super.initState();
     player.setDataSource(pullUrl, autoPlay: true);
     // 添加监听器
     TencentImPlugin.addListener(listener);
+  }
+
+  void init()async{
+    TencentImPlugin.init(
+        appid: "1400408794", logPrintLevel: LogPrintLevel.debug)
+        .then((value) => loginAA());
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.camera,
+      Permission.storage,
+      Permission.storage,
+      Permission.microphone,
+    ].request();
   }
 
   @override
@@ -85,12 +92,13 @@ class _VideoScreenState extends State<VideoScreen> {
   }
 
   void loginAA()async{
+    initSDK = true;
     await TencentImPlugin.login(
       identifier: widget.id,
       userSig:widget.sign,
     ).then((value)async{
       await TencentImPlugin.applyJoinGroup(groupId: id
-          , reason: 'hello');
+          , reason: 'hello').then((value) => login = true);
     });
 //    Navigator.of(context).push(new MaterialPageRoute(
 //        builder: (ctx)=>ChatPage(id: '@TGS#a2HHHJUGA',type: SessionType.Group,)));
@@ -219,6 +227,18 @@ class _VideoScreenState extends State<VideoScreen> {
                             ),
                             GestureDetector(
                               onTap: ()async{
+                                if(!initSDK){
+                                  Scaffold.of(context).showSnackBar(SnackBar(
+                                    content: Text('sdk initialize failed，please retry later'),
+                                  ));
+                                  return;
+                                }
+                                if(!login){
+                                  Scaffold.of(context).showSnackBar(SnackBar(
+                                    content: Text('login failed，please retry later'),
+                                  ));
+                                  return;
+                                }
                                 await TencentImPlugin.sendMessage(sessionId: '@TGS#a2HHHJUGA',
                                   sessionType: SessionType.Group, node: TextMessageNode(
                                     content: textEditingController.text??"",
