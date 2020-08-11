@@ -33,8 +33,10 @@ class LoginPageState extends State<LoginPage> {
   Future<String> getPullUrl(String pusherName)async{
     Dio dio = Dio();
     var result = await dio.get('https://api.tripalink.com/index.php',
-        queryParameters: {'r':'index/get-push-url','push_name':pusherName});
-    if(result != null){
+        queryParameters: {'r':'index/get-pull-url','pull_name':pusherName});
+    debugPrint('${result.data.toString()}');
+    debugPrint('pull url ${result.data['data']}');
+    if(result != null ){
       return result.data['data']??'';
 
     }
