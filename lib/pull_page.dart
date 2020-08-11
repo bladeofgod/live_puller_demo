@@ -208,7 +208,7 @@ class _VideoScreenState extends State<VideoScreen> {
                           children: data.map((e){
                             return Container(
                               width: MediaQuery.of(context).size.width,height: 60,
-                              child: Text('note : ${e.data.note}',style: TextStyle(color: Colors.black),),
+                              child: Text('${widget.id} : ${e.data.note}',style: TextStyle(color: Colors.black),),
                             );
                           }).toList(),
                         ),
