@@ -3,6 +3,7 @@
 * Date : 2020/8/10
 */
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterpulldemo/pull_page.dart';
 import 'package:tencent_im_plugin/enums/log_print_level.dart';
@@ -29,6 +30,21 @@ class LoginPageState extends State<LoginPage> {
         appid: "1400408794", logPrintLevel: LogPrintLevel.debug);
   }
 
+  Future<String> getPullUrl(String pusherName)async{
+    Dio dio = Dio();
+    var result = await dio.get('https://api.tripalink.com/index.php',
+        queryParameters: {'r':'index/get-push-url','push_name':pusherName});
+    if(result != null){
+      return result.data['data']??'';
+
+    }
+    return '';
+
+
+  }
+
+  final String pusherName = 'pusher';
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -45,11 +61,15 @@ class LoginPageState extends State<LoginPage> {
             ),
             RaisedButton(
               onPressed: (){
-                Navigator.of(context).push(
-                    new MaterialPageRoute(builder: (ctx)=>
-                        VideoScreen(id:'bladeofgod' ,
-                        sign:  "eJwtzLEOgjAUheF36WzwUlvakjggC4MuKkSMC6QFrqgQIMRofHdJYTzfSf4vOe9Pzmg64hPqAFnZjdq8BizQcv7ItGmKstHL2*s6a1vUxHcZAAMpFJsf826xM5NzzikAzDrg05ryhCc23FsqWE7xENKkTy4QR4GscFfSeyg5uodrNNbVbc1imgYfpo61ELAlvz*F1jJf",
-                            )));
+                getPullUrl(pusherName).then((value) {
+                  Navigator.of(context).push(
+                      new MaterialPageRoute(builder: (ctx)=>
+                          VideoScreen(id:'bladeofgod' ,
+                            pullUrl: value,
+                            sign:  "eJwtzLEOgjAUheF36WzwUlvakjggC4MuKkSMC6QFrqgQIMRofHdJYTzfSf4vOe9Pzmg64hPqAFnZjdq8BizQcv7ItGmKstHL2*s6a1vUxHcZAAMpFJsf826xM5NzzikAzDrg05ryhCc23FsqWE7xENKkTy4QR4GscFfSeyg5uodrNNbVbc1imgYfpo61ELAlvz*F1jJf",
+                          )));
+                });
+
               },
               child: Text('bladeofgod',style: TextStyle(color: Colors.black),),
             ),
@@ -58,13 +78,17 @@ class LoginPageState extends State<LoginPage> {
             ),
             RaisedButton(
               onPressed: (){
+                getPullUrl(pusherName).then((value) {
+                  Navigator.of(context).push(
+                      new MaterialPageRoute(builder: (ctx)=>
+                          VideoScreen(id:'administrator' ,
+                            pullUrl: value,
+                            sign: "eJwtzF0LgjAYBeD-suuQN5kfE7pYQlDY1YQ*7hZb8hba3FaZ0X9P1MvznMP5krIQwUtbkpEwALIYMyrdeLziyFLV2KDzVvqHnQdO3aUxqEi2pAAU0oTRqdGdQasHj6IoBIBJPdajsTiJU8ZmdVgN-5eqLMpTyuP*c74dN1Ls3HafH57YyrcI2473OTDu1kUCK-L7A2kbNPs_",
 
-                Navigator.of(context).push(
-                    new MaterialPageRoute(builder: (ctx)=>
-                        VideoScreen(id:'administrator' ,
-                          sign: "eJwtzF0LgjAYBeD-suuQN5kfE7pYQlDY1YQ*7hZb8hba3FaZ0X9P1MvznMP5krIQwUtbkpEwALIYMyrdeLziyFLV2KDzVvqHnQdO3aUxqEi2pAAU0oTRqdGdQasHj6IoBIBJPdajsTiJU8ZmdVgN-5eqLMpTyuP*c74dN1Ls3HafH57YyrcI2473OTDu1kUCK-L7A2kbNPs_",
+                          )));
+                });
 
-                        )));
+
 
               },
               child: Text('administrator',style: TextStyle(color: Colors.black),),

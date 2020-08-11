@@ -6,6 +6,7 @@
 
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:fijkplayer/fijkplayer.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -33,21 +34,25 @@ class VideoScreen extends StatefulWidget {
 
   final String id;
   final String sign;
+  final String pullUrl;
 
-  const VideoScreen({Key key, this.id, this.sign}) : super(key: key);
+  const VideoScreen({Key key, this.id, this.sign,this.pullUrl}) : super(key: key);
 
 
 
   @override
-  _VideoScreenState createState() => _VideoScreenState();
+  _VideoScreenState createState() => _VideoScreenState(pullUrl);
 }
 
 class _VideoScreenState extends State<VideoScreen> {
+
+
+
   final FijkPlayer player = FijkPlayer();
-  final String pullUrl = 'rtmp://video.apitripalink.com/live/tripalink';
+  final String pullUrl ;
   final String cctv = 'rtmp://58.200.131.2:1935/livetv/cctv2';
 
-  _VideoScreenState();
+  _VideoScreenState(this.pullUrl);
 
   final String id =  '@TGS#a2HHHJUGA';
   final SessionType type = SessionType.Group;
@@ -83,6 +88,8 @@ class _VideoScreenState extends State<VideoScreen> {
     ].request();
   }
 
+
+
   @override
   void dispose() {
     super.dispose();
@@ -112,10 +119,22 @@ class _VideoScreenState extends State<VideoScreen> {
     // 新消息时更新会话列表最近的聊天记录
     if (type == ListenerTypeEnum.NewMessages) {
       // 更新消息列表
-      this.setState(() {
-        data.add(DataEntity(data: params));
-        debugPrint('data  ------- ${data.last.data.toJson().toString()}');
-      });
+      for(var i in params){
+        if(i is SessionEntity){
+          // 更新消息列表
+          debugPrint('refresh data  ${i.message.toJson().toString()}');
+          if(!i.message.read){
+            this.setState(() {
+              data.add(DataEntity(data: i.message));
+
+            });
+          }
+
+          // 设置已读
+          //TencentImPlugin.setRead(sessionId: widget.id, sessionType: widget.type);
+
+        }
+      }
       // 设置已读
       TencentImPlugin.setRead(sessionId: id, sessionType: type);
     }
@@ -126,7 +145,7 @@ class _VideoScreenState extends State<VideoScreen> {
         if(i is SessionEntity){
           // 更新消息列表
           debugPrint('refresh data  ${i.message.toJson().toString()}');
-          if(i.message.read){
+          if(!i.message.read){
             this.setState(() {
               data.add(DataEntity(data: i.message));
 
@@ -134,7 +153,7 @@ class _VideoScreenState extends State<VideoScreen> {
           }
 
           // 设置已读
-          //TencentImPlugin.setRead(sessionId: widget.id, sessionType: widget.type);
+          TencentImPlugin.setRead(sessionId: widget.id, sessionType: type);
 
         }
       }
@@ -208,7 +227,7 @@ class _VideoScreenState extends State<VideoScreen> {
                           children: data.map((e){
                             return Container(
                               width: MediaQuery.of(context).size.width,height: 60,
-                              child: Text('${widget.id} : ${e.data.note}',style: TextStyle(color: Colors.black),),
+                              child: Text('${e.data.userInfo.identifier} : ${e.data.note}',style: TextStyle(color: Colors.black),),
                             );
                           }).toList(),
                         ),
